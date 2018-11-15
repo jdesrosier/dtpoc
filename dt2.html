@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="mockdata.js"></script>
+    <link
+      rel="stylesheet"
+      href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+    />
+    <link
+      href="http://datatables.net/download/build/nightly/jquery.dataTables.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://datatables.net/download/build/nightly/jquery.dataTables.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <table id="example" class="display">
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Job Title</th>
+            <th>Department</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Job Title</th>
+            <th>Department</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        $("#example").DataTable({
+          data: dtdata,
+
+          columns: [
+            { data: "first_name" },
+
+            { data: "last_name" },
+
+            { data: "job_title" },
+
+            { data: "department" }
+          ],
+          initComplete: function() {
+            this.api()
+              .columns()
+              .every(function() {
+                var column = this;
+
+                var select = $('<select><option value=""></option></select>')
+                  .appendTo($(column.footer()).empty())
+
+                  .on("change", function() {
+                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+
+                    column
+
+                      .search(val ? "^" + val + "$" : "", true, false)
+
+                      .draw();
+                  });
+
+                column
+                  .data()
+                  .unique()
+                  .sort()
+                  .each(function(d, j) {
+                    select.append(
+                      '<option value="' + d + '">' + d + "</option>"
+                    );
+                  });
+              });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

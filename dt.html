@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=<device-width>, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <script src="mockdata.js"></script>
+    <link
+      rel="stylesheet"
+      href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"
+    />
+    <link
+      href="http://datatables.net/download/build/nightly/jquery.dataTables.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <link
+      href="http://maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <script src="http://datatables.net/download/build/nightly/jquery.dataTables.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <table id="example" class="display">
+        <thead>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Job Title</th>
+            <th>Department</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Job Title</th>
+            <th>Department</th>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function() {
+        console.log(dtdata);
+
+        var table = $("#example").DataTable({
+          data: dtdata,
+
+          columns: [
+            { data: "first_name" },
+
+            { data: "last_name" },
+
+            { data: "job_title" },
+
+            { data: "department" }
+          ]
+        });
+
+        $("#example tfoot th").each(function(i) {
+          if ($(this).text() !== "") {
+            var isStatusColumn = $(this).text() == "Status" ? true : false;
+
+            var select = $('<select><option value=""></option></select>')
+              .appendTo($(this).empty())
+
+              .on("change", function() {
+                var val = $(this).val();
+
+                table
+
+                  .column(i)
+
+                  .search(val ? "^" + $(this).val() + "$" : val, true, false)
+
+                  .draw();
+              });
+
+            // Get the Status values a specific way since the status is a anchor/image
+
+            if (isStatusColumn) {
+              var statusItems = [];
+
+              // ### IS THERE A BETTER/SIMPLER WAY TO GET A UNIQUE ARRAY OF <TD> data-filter ATTRIBUTES? ###
+
+              table
+
+                .column(i)
+
+                .nodes()
+
+                .to$()
+
+                .each(function(d, j) {
+                  var thisStatus = $(j).attr("data-filter");
+
+                  if ($.inArray(thisStatus, statusItems) === -1)
+                    statusItems.push(thisStatus);
+                });
+
+              statusItems.sort();
+
+              $.each(statusItems, function(i, item) {
+                select.append(
+                  '<option value="' + item + '">' + item + "</option>"
+                );
+              });
+            }
+
+            // All other non-Status columns (like the example)
+            else {
+              table
+
+                .column(i)
+
+                .data()
+
+                .unique()
+
+                .sort()
+
+                .each(function(d, j) {
+                  select.append('<option value="' + d + '">' + d + "</option>");
+                });
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
